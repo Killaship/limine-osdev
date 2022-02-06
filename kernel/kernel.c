@@ -35,11 +35,7 @@ static struct stivale2_header_tag_any_video framebuffer_hdr_tag = {
         // which header tags are linked does not matter.
         .next = (uint64_t)&terminal_hdr_tag
     },
-    // We set all the framebuffer specifics to 0 as we want the bootloader
-    // to pick the best it can.
-    .framebuffer_width  = 0,
-    .framebuffer_height = 0,
-    .framebuffer_bpp    = 0
+
 };
 
 
