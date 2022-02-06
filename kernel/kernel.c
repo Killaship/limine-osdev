@@ -1,19 +1,16 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stivale2.h>
-
 // We need to tell the stivale bootloader where we want our stack to be.
 // We are going to allocate our stack as an array in .bss.
 static uint8_t stack[8192];
-
 // stivale2 uses a linked list of tags for both communicating TO the
 // bootloader, or receiving info FROM it. More information about these tags
 // is found in the stivale2 specification.
-
 // stivale2 offers a runtime terminal service which can be ditched at any
 // time, but it provides an easy way to print out to graphical terminal,
 // especially during early boot.
-static struct stivale2_header_tag_terminal = {
+static struct stivale2_header_tag_terminal terminal_hdr_tag = {
     // All tags need to begin with an identifier and a pointer to the next tag.
     .tag = {
         // Identification constant defined in stivale2.h and the specification.
@@ -25,7 +22,6 @@ static struct stivale2_header_tag_terminal = {
     // as it is unused.
     .flags = 0
 };
-
 // We are now going to define a framebuffer header tag.
 // This tag tells the bootloader that we want a graphical framebuffer instead
 // of a CGA-compatible text mode. Omitting this tag will make the bootloader
@@ -45,6 +41,7 @@ static struct stivale2_header_tag_framebuffer framebuffer_hdr_tag = {
     .framebuffer_height = 0,
     .framebuffer_bpp    = 0
 };
+
 */
 // The stivale2 specification says we need to define a "header structure".
 // This structure needs to reside in the .stivale2hdr ELF section in order
@@ -73,9 +70,8 @@ static struct stivale2_header stivale_hdr = {
     .flags = (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4),
     // This header structure is the root of the linked list of header tags and
     // points to the first one in the linked list.
-    .tags = (uintptr_t)& 0
+    .tags = (uintptr_t)&framebuffer_hdr_tag
 };
-
 // We will now write a helper function which will allow us to scan for tags
 // that we want FROM the bootloader (structure tags).
 void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, uint64_t id) {
@@ -86,24 +82,20 @@ void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, uint64_t id) {
         if (current_tag == NULL) {
             return NULL;
         }
-
         // Check whether the identifier matches. If it does, return a pointer
         // to the matching tag.
         if (current_tag->identifier == id) {
             return current_tag;
         }
-
         // Get a pointer to the next tag in the linked list and repeat.
         current_tag = (void *)current_tag->next;
     }
 }
-
 // The following will be our kernel's entry point.
 void _start(struct stivale2_struct *stivale2_struct) {
     // Let's get the terminal structure tag from the bootloader.
     struct stivale2_struct_tag_terminal *term_str_tag;
     term_str_tag = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_TERMINAL_ID);
-
     // Check if the tag was actually found.
     if (term_str_tag == NULL) {
         // It wasn't found, just hang...
@@ -111,19 +103,15 @@ void _start(struct stivale2_struct *stivale2_struct) {
             asm ("hlt");
         }
     }
-
     // Let's get the address of the terminal write function.
     void *term_write_ptr = (void *)term_str_tag->term_write;
-
     // Now, let's assign this pointer to a function pointer which
     // matches the prototype described in the stivale2 specification for
     // the stivale2_term_write function.
     void (*term_write)(const char *string, size_t length) = term_write_ptr;
-
     // We should now be able to call the above function pointer to print out
     // a simple "Hello World" to screen.
     term_write("Hello World", 11);
-
     // We're done, just hang...
     for (;;) {
         asm ("hlt");
