@@ -30,6 +30,7 @@ static struct stivale2_header_tag_terminal terminal_hdr_tag = {
 // This tag tells the bootloader that we want a graphical framebuffer instead
 // of a CGA-compatible text mode. Omitting this tag will make the bootloader
 // default to text mode, if available.
+/*
 static struct stivale2_header_tag_framebuffer framebuffer_hdr_tag = {
     // Same as above.
     .tag = {
@@ -44,7 +45,7 @@ static struct stivale2_header_tag_framebuffer framebuffer_hdr_tag = {
     .framebuffer_height = 0,
     .framebuffer_bpp    = 0
 };
-
+*/
 // The stivale2 specification says we need to define a "header structure".
 // This structure needs to reside in the .stivale2hdr ELF section in order
 // for the bootloader to find it. We use this __attribute__ directive to
