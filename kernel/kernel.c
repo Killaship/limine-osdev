@@ -13,7 +13,7 @@ static uint8_t stack[8192];
 // stivale2 offers a runtime terminal service which can be ditched at any
 // time, but it provides an easy way to print out to graphical terminal,
 // especially during early boot.
-static struct stivale2_header_tag_terminal terminal_hdr_tag = {
+static struct stivale2_header_tag_terminal = {
     // All tags need to begin with an identifier and a pointer to the next tag.
     .tag = {
         // Identification constant defined in stivale2.h and the specification.
@@ -73,7 +73,7 @@ static struct stivale2_header stivale_hdr = {
     .flags = (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4),
     // This header structure is the root of the linked list of header tags and
     // points to the first one in the linked list.
-    .tags = (uintptr_t)&framebuffer_hdr_tag
+    .tags = (uintptr_t)& 0
 };
 
 // We will now write a helper function which will allow us to scan for tags
